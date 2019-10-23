@@ -30,7 +30,7 @@
 #define PORTMACRO_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C" {}
 #endif
 
 /*-----------------------------------------------------------
@@ -45,23 +45,24 @@ extern "C" {
 
 /* Type definitions. */
 #if __riscv_xlen == 64
-	#define portSTACK_TYPE			uint64_t
-	#define portBASE_TYPE			int64_t
-	#define portUBASE_TYPE			uint64_t
-	#define portMAX_DELAY 			( TickType_t ) 0xffffffffffffffffUL
+	#define portSTACK_TYPE		uint64_t
+	#define portBASE_TYPE		int64_t
+	#define portUBASE_TYPE		uint64_t
+	#define portMAX_DELAY 		( TickType_t ) 0xffffffffffffffffUL
 	#define portPOINTER_SIZE_TYPE 	uint64_t
 #elif __riscv_xlen == 32
-	#define portSTACK_TYPE	uint32_t
-	#define portBASE_TYPE	int32_t
-	#define portUBASE_TYPE	uint32_t
-	#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
+	#define portSTACK_TYPE	        uint32_t
+	#define portBASE_TYPE	        int32_t
+	#define portUBASE_TYPE	        uint32_t
+	#define portMAX_DELAY           ( TickType_t ) 0xffffffffUL
+        #define portPOINTER_SIZE_TYPE 	uint32_t
 #else
 	#error Assembler did not define __riscv_xlen
 #endif
 
 
 typedef portSTACK_TYPE StackType_t;
-typedef portBASE_TYPE BaseType_t;
+typedef portBASE_TYPE  BaseType_t;
 typedef portUBASE_TYPE UBaseType_t;
 typedef portUBASE_TYPE TickType_t;
 
@@ -81,29 +82,9 @@ not need to be guarded with a critical section. */
 #endif
 /*-----------------------------------------------------------*/
 
-
-/* Scheduler utilities. */
-extern void vTaskSwitchContext( void );
-#define portYIELD() __asm volatile( "ecall" );
-#define portEND_SWITCHING_ISR( xSwitchRequired ) if( xSwitchRequired ) vTaskSwitchContext()
-#define portYIELD_FROM_ISR( x ) portEND_SWITCHING_ISR( x )
-/*-----------------------------------------------------------*/
-
-
-/* Critical section management. */
-#define portCRITICAL_NESTING_IN_TCB					1
-extern void vTaskEnterCritical( void );
-extern void vTaskExitCritical( void );
-
-#define portSET_INTERRUPT_MASK_FROM_ISR() 0
-#define portCLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedStatusValue ) ( void ) uxSavedStatusValue
-#define portDISABLE_INTERRUPTS()	__asm volatile( "csrc mstatus, 8" )
-#define portENABLE_INTERRUPTS()		__asm volatile( "csrs mstatus, 8" )
-#define portENTER_CRITICAL()	vTaskEnterCritical()
-#define portEXIT_CRITICAL()		vTaskExitCritical()
+#include "freertos_risc_v_chip_macro_extensions.h"
 
 /*-----------------------------------------------------------*/
-
 /* Architecture specific optimisations. */
 #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
 	#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
@@ -137,15 +118,15 @@ not necessary for to use this port.  They are defined so the common demo files
 
 /*-----------------------------------------------------------*/
 
-#define portNOP() __asm volatile 	( " nop " )
+#define portNOP()                 __asm volatile( " nop " )
 
-#define portINLINE	__inline
+#define portINLINE                __inline
 
 #ifndef portFORCE_INLINE
-	#define portFORCE_INLINE inline __attribute__(( always_inline))
+	#define portFORCE_INLINE  inline __attribute__((always_inline))
 #endif
 
-#define portMEMORY_BARRIER() __asm volatile( "" ::: "memory" )
+#define portMEMORY_BARRIER()      __asm volatile( "" ::: "memory" )
 
 #ifdef __cplusplus
 }
