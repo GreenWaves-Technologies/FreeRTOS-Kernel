@@ -102,6 +102,7 @@ at the top of this file. */
 
 /*-----------------------------------------------------------*/
 
+#if 0
 .align 8
 .func
 freertos_risc_v_trap_handler:
@@ -276,8 +277,8 @@ processed_source:
 
 	mret
 	.endfunc
+#endif
 /*-----------------------------------------------------------*/
-
 .align 8
 .func
 xPortStartFirstTask:
@@ -298,7 +299,10 @@ xPortStartFirstTask:
 	portasmRESTORE_ADDITIONAL_REGISTERS	/* Defined in freertos_risc_v_chip_specific_extensions.h to restore any registers unique to the RISC-V implementation. */
 
 	load_x  t0, 29 * portWORD_SIZE( sp )	/* mstatus */
+        //addi t0, t0, 0x08
+        li t0, 0x1880
 	csrrw  x0, mstatus, t0					/* Interrupts enabled from here! */
+        csrw mepc, x1
 
 	load_x  x5, 2 * portWORD_SIZE( sp )		/* t0 */
 	load_x  x6, 3 * portWORD_SIZE( sp )		/* t1 */
@@ -328,7 +332,7 @@ xPortStartFirstTask:
 	load_x  x30, 27 * portWORD_SIZE( sp )	/* t5 */
 	load_x  x31, 28 * portWORD_SIZE( sp )	/* t6 */
 	addi	sp, sp, portCONTEXT_SIZE
-	ret
+	mret
 	.endfunc
 /*-----------------------------------------------------------*/
 
